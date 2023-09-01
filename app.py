@@ -1,5 +1,6 @@
+#!/usr/bin/env python3
+
 import random
-import sys
 
 from flask import Flask, render_template
 from waitress import serve
@@ -18,5 +19,4 @@ def instant_nerdle():
     return render_template('instant_nerdle.html', guess=possibility[0], feedback=possibility[1], answer=possibility[2])
 
 if __name__ == '__main__':
-    port = int(sys.argv[1])
-    serve(app, port=port)
+    serve(app, port=8080)
