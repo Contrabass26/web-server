@@ -18,5 +18,9 @@ def instant_nerdle():
         possibility = random.choice(lines).strip().split(' ')
     return render_template('instant_nerdle.html', guess=possibility[0], feedback=possibility[1], answer=possibility[2])
 
+@app.route('/2048')
+def _2048():
+    return render_template('2048.html')
+
 if __name__ == '__main__':
     serve(app, port=8080)
