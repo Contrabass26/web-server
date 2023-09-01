@@ -1,0 +1,41 @@
+@font-face {
+    font-family: "Mona Sans";
+    src: url("../font/Mona-Sans-Regular.woff2");
+}
+
+:root {
+    color-scheme: dark;
+}
+
+h1, h2, a, p {
+    font-family: "Mona Sans", serif;
+    color: #e6edf3;
+}
+
+.header {
+    padding: 10px 16px;
+    background-color: #010409;
+    border-bottom: 1px solid #21262d;
+    display: flex;
+    align-items: flex-start;
+}
+
+#logo-image {
+    margin-right: 15px;
+}
+
+.content {
+    padding: 10px 16px;
+}
+
+body {
+    background-color: #0d1117;
+    margin: 0;
+    padding: 0;
+}
+
+hr {
+    background-color: #30363d;
+    border: none;
+    height: 1px;
+}

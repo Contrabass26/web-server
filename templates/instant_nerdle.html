@@ -1,0 +1,23 @@
+<html lang="en">
+<head>
+	<title>ContraNet - Instant Nerdle</title>
+	<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
+	<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/instant_nerdle.css') }}">
+	<script src="{{ url_for('static', filename='js/instant_nerdle.js') }}"></script>
+</head>
+<body onload="onLoad('{{ guess }}', '{{ feedback }}', '{{ answer }}')">
+<div class="header">
+	<img id="logo-image" src="{{ url_for('static', filename='img/contrabass.png') }}" alt="Contrabass icon" width="auto" height="64">
+	<h1>ContraNet</h1>
+</div>
+<div class="content">
+    <p>Solve the Instant Nerdle. Refresh the page for a new one.</p>
+    <div class="canvases">
+        <canvas id="information" width="750" height="110">
+            <p>Canvas not supported by browser</p>
+        </canvas>
+        <canvas id="guess" width="750" height="110"></canvas>
+    </div>
+</div>
+</body>
+</html>
