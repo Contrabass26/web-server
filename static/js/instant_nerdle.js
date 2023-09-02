@@ -24,7 +24,12 @@ function updateGuessCanvas() {
     }
 }
 
-function onLoad(guess, feedback, answer) {
+function onLoad(pPossibilities) {
+    let possibilities = JSON.parse(pPossibilities);
+    console.log(possibilities);
+    let guess = possibilities[0].guess;
+    let feedback = possibilities[0].feedback;
+    let answer = possibilities[0].answer;
     const informationCanvas = document.getElementById("information");
     if (informationCanvas.getContext) {
         // Draw stuff
@@ -97,12 +102,22 @@ function onLoad(guess, feedback, answer) {
             updateGuessCanvas();
         }
         if (event.key === "Enter") {
-            let finalGuess = userGuess.join("");
-            if (finalGuess === answer) {
-                alert("You got it right!");
-            } else {
-                alert("Not quite right.");
-            }
+            let promise = sha1(userGuess.join(""));
+            promise.then(function (finalGuess) {
+                if (finalGuess === answer) {
+                    alert("You got it right!");
+                } else {
+                    alert("Not quite right.");
+                }
+            });
         }
     });
+}
+
+async function sha1(str) {
+  const enc = new TextEncoder();
+  const hash = await crypto.subtle.digest('SHA-1', enc.encode(str));
+  return Array.from(new Uint8Array(hash))
+    .map(v => v.toString(16).padStart(2, '0'))
+    .join('');
 }
