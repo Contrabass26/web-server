@@ -23,4 +23,4 @@ def _2048():
     return render_template('2048.html')
 
 if __name__ == '__main__':
-    serve(app, port=8080)
+    serve(app, port=80)
