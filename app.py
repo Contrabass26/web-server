@@ -4,6 +4,8 @@ import random
 
 from flask import Flask, render_template
 from waitress import serve
+import json
+import hashlib
 
 app = Flask(__name__)
 
@@ -14,9 +16,12 @@ def main():
 @app.route('/instant_nerdle')
 def instant_nerdle():
     with open('possibilities.txt') as file:
+        possibilities = []
         lines = file.readlines()
-        possibility = random.choice(lines).strip().split(' ')
-    return render_template('instant_nerdle.html', guess=possibility[0], feedback=possibility[1], answer=possibility[2])
+        for i in range(10):
+            possibility = random.choice(lines).strip().split(' ')
+            possibilities.append({'guess': possibility[0], 'feedback': possibility[1], 'answer': hashlib.sha1(bytes(possibility[2], 'utf-8')).hexdigest()})
+    return render_template('instant_nerdle.html', possibilities=json.dumps(possibilities))
 
 @app.route('/2048')
 def _2048():

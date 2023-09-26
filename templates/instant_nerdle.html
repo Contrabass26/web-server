@@ -6,12 +6,13 @@
     <link rel="icon" href="{{ url_for('static', filename='img/contrabass.png') }}">
 	<script src="{{ url_for('static', filename='js/instant_nerdle.js') }}"></script>
 </head>
-<body onload="onLoad('{{ guess }}', '{{ feedback }}', '{{ answer }}')">
+<body onload='onLoad({{ possibilities|tojson }})'>
 <div class="header">
 	<img id="logo-image" src="{{ url_for('static', filename='img/contrabass.png') }}" alt="Contrabass icon" width="auto" height="64">
 	<h1>ContraNet</h1>
 </div>
 <div class="content">
+    <h2>Instant Nerdle</h2>
     <p>Solve the Instant Nerdle. Refresh the page for a new one.</p>
     <div class="canvases">
         <canvas id="information" width="750" height="110">
