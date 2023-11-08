@@ -1,5 +1,11 @@
+const CORRECT_FADE_LENGTH = 200;
+const CORRECT_STAY_LENGTH = 1000;
+const CORRECT_DELAY = 100;
+
 let selected = 0;
 let userGuess = Array(8).fill(" ");
+let correct = null;
+let animationStart = null;
 
 function updateGuessCanvas() {
     let guessCanvas = document.getElementById("guess");
@@ -17,8 +23,41 @@ function updateGuessCanvas() {
             context.beginPath();
             context.roundRect(x, 5, 80, 100, 5);
             context.stroke();
-            // Text
+        }
+        // Overlay for (in)correct answer
+        if (correct != null) {
+            let frame = new Date().getTime() - animationStart;
+            if (frame >= CORRECT_DELAY * 8 + CORRECT_FADE_LENGTH + CORRECT_STAY_LENGTH) {
+                correct = null;
+                animationStart = null;
+            } else {
+                for (let i = 0; i < 8; i++) {
+                    let progress = frame - i * CORRECT_DELAY;
+                    if (progress >= 0) {
+                        if (progress <= CORRECT_FADE_LENGTH) {
+                            let opacity = progress / CORRECT_FADE_LENGTH;
+                            context.fillStyle = correct ? `rgba(57, 136, 116, ${opacity})` : `rgba(130, 4, 4, ${opacity})`
+                        } else if (progress <= CORRECT_FADE_LENGTH + CORRECT_STAY_LENGTH) {
+                            context.fillStyle = correct ? "rgb(57, 136, 116)" : "rgb(130, 4, 4)"
+                        } else {
+                            continue;
+                        }
+                        let x = 5 + 90 * i;
+                        context.beginPath();
+                        context.roundRect(x, 5, 80, 100, 5);
+                        context.stroke();
+                        context.fill();
+                    }
+                }
+                requestAnimationFrame(updateGuessCanvas)
+            }
+        }
+        // Text
+        for (let i = 0; i < 8; i++) {
+            let x = 5 + 90 * i;
             let textWidth = context.measureText(userGuess[i]).width;
+            context.strokeStyle = "#e6edf3";
+            context.fillStyle = "#e6edf3";
             context.fillText(userGuess[i], x + 40 - textWidth / 2, 5 + 65);
         }
     }
@@ -104,11 +143,9 @@ function onLoad(pPossibilities) {
         if (event.key === "Enter") {
             let promise = sha1(userGuess.join(""));
             promise.then(function (finalGuess) {
-                if (finalGuess === answer) {
-                    alert("You got it right!");
-                } else {
-                    alert("Not quite right.");
-                }
+                correct = finalGuess === answer;
+                animationStart = new Date().getTime();
+                updateGuessCanvas();
             });
         }
     });
