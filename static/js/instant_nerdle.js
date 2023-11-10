@@ -1,6 +1,5 @@
-const CORRECT_FADE_LENGTH = 200;
-const CORRECT_STAY_LENGTH = 1000;
-const CORRECT_DELAY = 100;
+const FADE_LENGTH = 200;
+const DELAY = 50;
 
 let selected = 0;
 let userGuess = Array(8).fill(" ");
@@ -13,32 +12,20 @@ function updateGuessCanvas() {
         // Draw stuff
         const context = guessCanvas.getContext("2d");
         context.clearRect(0, 0, guessCanvas.width, guessCanvas.height);
-        context.fillStyle = "#e6edf3";
-        context.font = "48px Mona Sans";
-        for (let i = 0; i < 8; i++) {
-            // Box
-            context.lineWidth = selected === i ? 6 : 4;
-            let x = 5 + 90 * i;
-            context.strokeStyle = "#e6edf3";
-            context.beginPath();
-            context.roundRect(x, 5, 80, 100, 5);
-            context.stroke();
-        }
         // Overlay for (in)correct answer
         if (correct != null) {
             let frame = new Date().getTime() - animationStart;
-            if (frame >= CORRECT_DELAY * 8 + CORRECT_FADE_LENGTH + CORRECT_STAY_LENGTH) {
+            if (frame >= DELAY * 8 + FADE_LENGTH * 2) {
                 correct = null;
                 animationStart = null;
             } else {
                 for (let i = 0; i < 8; i++) {
-                    let progress = frame - i * CORRECT_DELAY;
+                    let progress = frame - i * DELAY;
                     if (progress >= 0) {
-                        if (progress <= CORRECT_FADE_LENGTH) {
-                            let opacity = progress / CORRECT_FADE_LENGTH;
+                        if (progress <= FADE_LENGTH * 2) {
+                            let opacity = progress / FADE_LENGTH;
+                            opacity = 1 - Math.abs(opacity - 1);
                             context.fillStyle = correct ? `rgba(57, 136, 116, ${opacity})` : `rgba(130, 4, 4, ${opacity})`
-                        } else if (progress <= CORRECT_FADE_LENGTH + CORRECT_STAY_LENGTH) {
-                            context.fillStyle = correct ? "rgb(57, 136, 116)" : "rgb(130, 4, 4)"
                         } else {
                             continue;
                         }
@@ -51,6 +38,18 @@ function updateGuessCanvas() {
                 }
                 requestAnimationFrame(updateGuessCanvas)
             }
+        }
+        // Boxes
+        context.fillStyle = "#e6edf3";
+        context.font = "48px Mona Sans";
+        for (let i = 0; i < 8; i++) {
+            // Box
+            context.lineWidth = selected === i ? 6 : 4;
+            let x = 5 + 90 * i;
+            context.strokeStyle = "#e6edf3";
+            context.beginPath();
+            context.roundRect(x, 5, 80, 100, 5);
+            context.stroke();
         }
         // Text
         for (let i = 0; i < 8; i++) {
