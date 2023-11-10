@@ -1,10 +1,15 @@
 const FADE_LENGTH = 200;
 const DELAY = 50;
+const TITLE_BASE_TEXT = "Instant Nerdle"
 
+let currentProblem = 0;
+let problems = Array(10);
 let selected = 0;
 let userGuess = Array(8).fill(" ");
 let correct = null;
 let animationStart = null;
+let intervalId = null;
+let timer = null;
 
 function updateGuessCanvas() {
     let guessCanvas = document.getElementById("guess");
@@ -16,6 +21,19 @@ function updateGuessCanvas() {
         if (correct != null) {
             let frame = new Date().getTime() - animationStart;
             if (frame >= DELAY * 8 + FADE_LENGTH * 2) {
+                if (correct) {
+                    if (currentProblem !== -1) {
+                        currentProblem++;
+                        if (currentProblem < 10) {
+                            onLoad(null);
+                        } else if (currentProblem === 10) {
+                            stopTimer();
+                            document.getElementById("nerdle-title").innerText = `${TITLE_BASE_TEXT} - ${Math.floor(timer / 60)}:${timer % 60} - ${currentProblem}/10`
+                            currentProblem = -1;
+                            userGuess = new Array(8).fill(" ");
+                        }
+                    }
+                }
                 correct = null;
                 animationStart = null;
             } else {
@@ -62,12 +80,36 @@ function updateGuessCanvas() {
     }
 }
 
+function startTimer() {
+    timer = 600;
+    intervalId = setInterval(decrementTimer, 1000);
+}
+
+function stopTimer() {
+    clearInterval(intervalId);
+    intervalId = null;
+}
+
+function decrementTimer() {
+    timer--;
+    if (timer <= 0) {
+        stopTimer();
+    }
+    document.getElementById("nerdle-title").innerText = `${TITLE_BASE_TEXT} - ${Math.floor(timer / 60)}:${timer % 60} - ${currentProblem}/10`
+}
+
 function onLoad(pPossibilities) {
-    let possibilities = JSON.parse(pPossibilities);
-    console.log(possibilities);
-    let guess = possibilities[0].guess;
-    let feedback = possibilities[0].feedback;
-    let answer = possibilities[0].answer;
+    if (pPossibilities != null) {
+        currentProblem = 0;
+        problems = JSON.parse(pPossibilities);
+        console.log(problems);
+        startTimer();
+    }
+    selected = 0;
+    userGuess = Array(8).fill(" ");
+    let guess = problems[currentProblem].guess;
+    let feedback = problems[currentProblem].feedback;
+    let answer = problems[currentProblem].answer;
     const informationCanvas = document.getElementById("information");
     if (informationCanvas.getContext) {
         // Draw stuff
@@ -104,50 +146,52 @@ function onLoad(pPossibilities) {
         }
     }
 
-    guessCanvas.addEventListener("click", function(event) {
-        if (guessCanvas.contains(event.target)) {
-            let canvasPos = guessCanvas.getBoundingClientRect();
-            let relativeX = event.x - canvasPos.x;
-            selected = Math.min(Math.floor((relativeX - 5) / 90), 7);
-            updateGuessCanvas();
-        }
-    })
-
-    document.addEventListener("keydown", function(event) {
-        if ("0123456789+-*/=".includes(event.key)) {
-            userGuess[selected] = event.key;
-            for (let i = selected + 1; i <= 7; i++) {
-                if (userGuess[i] === " ") {
-                    selected = i;
-                    break;
-                }
-            }
-            updateGuessCanvas();
-        }
-        if (event.key === "ArrowLeft" && selected > 0) {
-            selected--;
-            updateGuessCanvas();
-        }
-        if (event.key === "ArrowRight" && selected < 7) {
-            selected++;
-            updateGuessCanvas();
-        }
-        if (event.key === "Backspace") {
-            userGuess[selected] = " ";
-            if (selected > 0) {
-                selected--;
-            }
-            updateGuessCanvas();
-        }
-        if (event.key === "Enter") {
-            let promise = sha1(userGuess.join(""));
-            promise.then(function (finalGuess) {
-                correct = finalGuess === answer;
-                animationStart = new Date().getTime();
+    if (pPossibilities != null) {
+        guessCanvas.addEventListener("click", function (event) {
+            if (guessCanvas.contains(event.target)) {
+                let canvasPos = guessCanvas.getBoundingClientRect();
+                let relativeX = event.x - canvasPos.x;
+                selected = Math.min(Math.floor((relativeX - 5) / 90), 7);
                 updateGuessCanvas();
-            });
-        }
-    });
+            }
+        })
+
+        document.addEventListener("keydown", function (event) {
+            if ("0123456789+-*/=".includes(event.key)) {
+                userGuess[selected] = event.key;
+                for (let i = selected + 1; i <= 7; i++) {
+                    if (userGuess[i] === " ") {
+                        selected = i;
+                        break;
+                    }
+                }
+                updateGuessCanvas();
+            }
+            if (event.key === "ArrowLeft" && selected > 0) {
+                selected--;
+                updateGuessCanvas();
+            }
+            if (event.key === "ArrowRight" && selected < 7) {
+                selected++;
+                updateGuessCanvas();
+            }
+            if (event.key === "Backspace") {
+                userGuess[selected] = " ";
+                if (selected > 0) {
+                    selected--;
+                }
+                updateGuessCanvas();
+            }
+            if (event.key === "Enter" && intervalId != null) {
+                let promise = sha1(userGuess.join(""));
+                promise.then(function (finalGuess) {
+                    correct = finalGuess === answer;
+                    animationStart = new Date().getTime();
+                    updateGuessCanvas();
+                });
+            }
+        });
+    }
 }
 
 async function sha1(str) {
