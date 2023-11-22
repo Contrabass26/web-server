@@ -109,7 +109,6 @@ function onLoad(pPossibilities) {
     userGuess = Array(8).fill(" ");
     let guess = problems[currentProblem].guess;
     let feedback = problems[currentProblem].feedback;
-    let answer = problems[currentProblem].answer;
     const informationCanvas = document.getElementById("information");
     if (informationCanvas.getContext) {
         // Draw stuff
@@ -185,7 +184,7 @@ function onLoad(pPossibilities) {
             if (event.key === "Enter" && intervalId != null) {
                 let promise = sha1(userGuess.join(""));
                 promise.then(function (finalGuess) {
-                    correct = finalGuess === answer;
+                    correct = finalGuess === problems[currentProblem].answer;
                     animationStart = new Date().getTime();
                     updateGuessCanvas();
                 });
